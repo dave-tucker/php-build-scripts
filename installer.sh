@@ -463,7 +463,7 @@ else
 		if [ "$alldone" == "no" ]; then
 			set -e
 			echo "[3/3] no build found, compiling PHP automatically"
-			exec "./compile.sh"
+			source compile.sh
 		fi
 	fi
 fi
