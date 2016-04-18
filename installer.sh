@@ -101,10 +101,10 @@ fi
 ENABLE_GPG="no"
 PUBLICKEY_URL="http://cdn.pocketmine.net/pocketmine.asc"
 PUBLICKEY_FINGERPRINT="20D377AFC3F7535B3261AA4DCF48E7E52280B75B"
-PUBLICKEY_LONGID="${PUBLICKEY_FINGERPRINT: -16}"
+PUBLICKEY_LONGID="${PUBLICKEY_FINGERPRINT:24}"
 GPG_KEYSERVER="pgp.mit.edu"
 
-function check_signature {
+check_signature() {
 	echo "[*] Checking signature of $1"
 	"$GPG_BIN" --keyserver "$GPG_KEYSERVER" --keyserver-options auto-key-retrieve=1 --trusted-key $PUBLICKEY_LONGID --verify "$1.sig" "$1"
 	if [ $? -eq 0 ]; then
