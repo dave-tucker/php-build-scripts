@@ -66,7 +66,7 @@ done
 download_file() {
 	type wget > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		if [ "$IGNORE_CERT" == "yes" ]; then
+		if [ "$IGNORE_CERT" = "yes" ]; then
 			wget --no-check-certificate -q -O- $@
 		else
 			wget -q -O- $@
@@ -74,7 +74,7 @@ download_file() {
 	else
 		type curl >> /dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			if [ "$IGNORE_CERT" == "yes" ]; then
+			if [ "$IGNORE_CERT" = "yes" ]; then
 				curl --insecure --silent --location $@
 			else
 				curl --silent --location $@
@@ -85,8 +85,8 @@ download_file() {
 	fi
 }
 
-if [ "$checkRoot" == "on" ]; then
-	if [ "$(id -u)" == "0" ]; then
+if [ "$checkRoot" = "on" ]; then
+	if [ "$(id -u)" = "0" ]; then
 	   echo "This script is running as root, this is discouraged."
 	   echo "It is recommended to run it as a normal user as it doesn't need further permissions."
 	   echo "If you want to run it as root, add the -r flag."
@@ -94,14 +94,14 @@ if [ "$checkRoot" == "on" ]; then
 	fi
 fi
 
-if [ "$CHANNEL" == "soft" ]; then
+if [ "$CHANNEL" = "soft" ]; then
 	NAME="PocketMine-Soft"
 fi
 
 ENABLE_GPG="no"
 PUBLICKEY_URL="http://cdn.pocketmine.net/pocketmine.asc"
 PUBLICKEY_FINGERPRINT="20D377AFC3F7535B3261AA4DCF48E7E52280B75B"
-PUBLICKEY_LONGID="$(echo "$PUBLICKEY_FINGERPRINT" | cut -d 25-)"
+PUBLICKEY_LONGID="$(echo "$PUBLICKEY_FINGERPRINT" | cut -c 25-)"
 GPG_KEYSERVER="pgp.mit.edu"
 
 check_signature() {
@@ -116,7 +116,7 @@ check_signature() {
 	fi
 }
 
-if [[ "$BUILD_URL" != "" && "$CHANNEL" == "custom" ]]; then
+if [ "$BUILD_URL" != "" ] && [ "$CHANNEL" = "custom" ]; then
 	BASE_VERSION="custom"
 	VERSION="custom"
 	BUILD="unknown"
@@ -135,11 +135,11 @@ API_VERSION=$(echo "$VERSION_DATA" | grep api_version | cut -d ':' -f2- | tr -d 
 VERSION_DATE=$(echo "$VERSION_DATA" | grep '"date"' | cut -d ':' -f2- | tr -d ' ",')
 VERSION_DOWNLOAD=$(echo "$VERSION_DATA" | grep '"download_url"' | cut -d ':' -f2- | tr -d ' ",')
 
-if [ "$alternateurl" == "on" ]; then
+if [ "$alternateurl" = "on" ]; then
     VERSION_DOWNLOAD=$(echo "$VERSION_DATA" | grep '"alternate_download_url"' | cut -d ':' -f2- | tr -d ' ",')
 fi
 
-if [ "$(uname -s)" == "Darwin" ]; then
+if [ "$(uname -s)" = "Darwin" ]; then
 	BASE_VERSION=$(echo "$VERSION" | sed -E 's/([A-Za-z0-9_\.]*).*/\1/')
 	VERSION_DATE_STRING=$(date -j -f "%s" $VERSION_DATE)
 else
@@ -153,14 +153,14 @@ if [ "$GPG_SIGNATURE" != "" ]; then
 	ENABLE_GPG="yes"
 fi
 
-if [ "$VERSION" == "" ]; then
+if [ "$VERSION" = "" ]; then
 	echo "[!] Couldn't get the latest $NAME version"
 	exit 1
 fi
 
 GPG_BIN=""
 
-if [ "$ENABLE_GPG" == "yes" ]; then
+if [ "$ENABLE_GPG" = "yes" ]; then
 	type gpg > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		GPG_BIN="gpg"
@@ -190,10 +190,10 @@ fi
 echo "[*] Found $NAME $BASE_VERSION (build $BUILD) using API $API_VERSION"
 echo "[*] This $CHANNEL build was released on $VERSION_DATE_STRING"
 
-if [ "$ENABLE_GPG" == "yes" ]; then
+if [ "$ENABLE_GPG" = "yes" ]; then
 	echo "[+] The build was signed, will check signature"
-elif [ "$GPG_SIGNATURE" == "" ]; then
-	if [[ "$CHANNEL" == "beta" ]] || [[ "$CHANNEL" == "stable" ]]; then
+elif [ "$GPG_SIGNATURE" = "" ]; then
+	if [ "$CHANNEL" = "beta" ] || [ "$CHANNEL" = "stable" ]; then
 		echo "[-] This channel should have a signature, none found"
 	fi
 fi
@@ -216,13 +216,13 @@ rm -r -f src/
 echo -n "[2/3] Downloading $NAME $VERSION phar..."
 set +e
 download_file "$VERSION_DOWNLOAD" > "$NAME.phar"
-if ! [ -s "$NAME.phar" ] || [ "$(head -n 1 $NAME.phar)" == '<!DOCTYPE html>' ]; then
+if ! [ -s "$NAME.phar" ] || [ "$(head -n 1 $NAME.phar)" = '<!DOCTYPE html>' ]; then
 	rm "$NAME.phar" 2> /dev/null
 	echo " failed!"
 	echo "[!] Couldn't download $NAME automatically from $VERSION_DOWNLOAD"
 	exit 1
 else
-	if [ "$CHANNEL" == "soft" ]; then
+	if [ "$CHANNEL" = "soft" ]; then
 		download_file "https://raw.githubusercontent.com/PocketMine/PocketMine-Soft/${BRANCH}/resources/start.sh" > start.sh
 	else
 		download_file "https://raw.githubusercontent.com/PocketMine/PocketMine-MP/${BRANCH}/start.sh" > start.sh
@@ -238,28 +238,28 @@ chmod +x start.sh
 
 echo " done!"
 
-if [ "$ENABLE_GPG" == "yes" ]; then
+if [ "$ENABLE_GPG" = "yes" ]; then
 	download_file "$GPG_SIGNATURE" > "$NAME.phar.sig"
 	check_signature "$NAME.phar"
 fi
 
-if [ "$update" == "on" ]; then
+if [ "$update" = "on" ]; then
 	echo "[3/3] Skipping PHP recompilation due to user request"
 else
 	echo -n "[3/3] Obtaining PHP:"
 	echo " detecting if build is available..."
-	if [ "$forcecompile" == "off" ] && [ "$(uname -s)" == "Darwin" ]; then
+	if [ "$forcecompile" = "off" ] && [ "$(uname -s)" = "Darwin" ]; then
 		set +e
 		UNAME_M=$(uname -m)
 		IS_IOS=$(expr match $UNAME_M 'iP[a-zA-Z0-9,]*' 2> /dev/null)
 		set -e
-		if [[ "$IS_IOS" -gt 0 ]]; then
+		if [ "$IS_IOS" -gt 0 ]; then
 			rm -r -f bin/ >> /dev/null 2>&1
 			echo -n "[3/3] iOS PHP build available, downloading $IOS_BUILD.tar.gz..."
 			download_file "https://dl.bintray.com/pocketmine/PocketMine/$IOS_BUILD.tar.gz" | tar -zx > /dev/null 2>&1
 			chmod +x ./bin/php7/bin/*
 			echo -n " checking..."
-			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" == "1" ]; then
+			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" = "1" ]; then
 				echo -n " regenerating php.ini..."
 				TIMEZONE=$(date +%Z)
 				echo "" > "./bin/php7/bin/php.ini"
@@ -278,7 +278,7 @@ else
 			fi
 		else
 			rm -r -f bin/ >> /dev/null 2>&1
-			if [ `getconf LONG_BIT` == "64" ]; then
+			if [ `getconf LONG_BIT` = "64" ]; then
 				echo -n "[3/3] MacOS 64-bit PHP build available, downloading $MAC_64_BUILD.tar.gz..."
 				MAC_BUILD="$MAC_64_BUILD"
 			else
@@ -288,7 +288,7 @@ else
 			download_file "https://dl.bintray.com/pocketmine/PocketMine/$MAC_BUILD.tar.gz" | tar -zx > /dev/null 2>&1
 			chmod +x ./bin/php7/bin/*
 			echo -n " checking..."
-			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" == "1" ]; then
+			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" = "1" ]; then
 				echo -n " regenerating php.ini..."
 				TIMEZONE=$(date +%Z)
 				#OPCACHE_PATH="$(find $(pwd) -name opcache.so)"
@@ -297,7 +297,7 @@ else
 				#UOPZ_PATH="$(find $(pwd) -name uopz.so)"
 				#echo "zend_extension=\"$UOPZ_PATH\"" >> "./bin/php7/bin/php.ini"
 				#echo "zend_extension=\"$OPCACHE_PATH\"" >> "./bin/php7/bin/php.ini"
-				if [ "$XDEBUG" == "on" ]; then
+				if [ "$XDEBUG" = "on" ]; then
 					echo "zend_extension=\"$XDEBUG_PATH\"" >> "./bin/php7/bin/php.ini"
 				fi
 				echo "opcache.enable=1" >> "./bin/php7/bin/php.ini"
@@ -328,24 +328,24 @@ else
 		IS_BPI=$?
 		uname -m | grep -q armv7 > /dev/null 2>&1
 		IS_ARMV7=$?
-		if ([ "$IS_RPI" -eq 0 ] || [ "$IS_BPI" -eq 0 ]) && [ "$forcecompile" == "off" ]; then
+		if ([ "$IS_RPI" -eq 0 ] || [ "$IS_BPI" -eq 0 ]) && [ "$forcecompile" = "off" ]; then
 			rm -r -f bin/ >> /dev/null 2>&1
 			echo -n "[3/3] Raspberry Pi PHP build available, downloading $RPI_BUILD.tar.gz..."
 			download_file "https://dl.bintray.com/pocketmine/PocketMine/$RPI_BUILD.tar.gz" | tar -zx > /dev/null 2>&1
 			chmod +x ./bin/php7/bin/*
 			echo -n " checking..."
-			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" == "1" ]; then
+			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" = "1" ]; then
 				echo -n " regenerating php.ini..."
 				TIMEZONE=$(date +%Z)
 				#OPCACHE_PATH="$(find $(pwd) -name opcache.so)"
-				if [ "$XDEBUG" == "on" ]; then
+				if [ "$XDEBUG" = "on" ]; then
 					echo "zend_extension=\"$XDEBUG_PATH\"" >> "./bin/php7/bin/php.ini"
 				fi
 				echo "" > "./bin/php7/bin/php.ini"
 				#UOPZ_PATH="$(find $(pwd) -name uopz.so)"
 				#echo "zend_extension=\"$UOPZ_PATH\"" >> "./bin/php7/bin/php.ini"
 				#echo "zend_extension=\"$OPCACHE_PATH\"" >> "./bin/php7/bin/php.ini"
-				if [ "$XDEBUG" == "on" ]; then
+				if [ "$XDEBUG" = "on" ]; then
 					echo "zend_extension=\"$XDEBUG_PATH\"" >> "./bin/php7/bin/php.ini"
 				fi
 				echo "opcache.enable=1" >> "./bin/php7/bin/php.ini"
@@ -368,13 +368,13 @@ else
 			else
 				echo " invalid build detected"
 			fi
-		elif [ "$IS_ARMV7" -eq 0 ] && [ "$forcecompile" == "off" ]; then
+		elif [ "$IS_ARMV7" -eq 0 ] && [ "$forcecompile" = "off" ]; then
 			rm -r -f bin/ >> /dev/null 2>&1
 			echo -n "[3/3] ARMv7 PHP build available, downloading $ARMV7_BUILD.tar.gz..."
 			download_file "https://dl.bintray.com/pocketmine/PocketMine/$ARMV7_BUILD.tar.gz" | tar -zx > /dev/null 2>&1
 			chmod +x ./bin/php7/bin/*
 			echo -n " checking..."
-			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" == "1" ]; then
+			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" = "1" ]; then
 				echo -n " regenerating php.ini..."
 				#OPCACHE_PATH="$(find $(pwd) -name opcache.so)"
 				XDEBUG_PATH="$(find $(pwd) -name xdebug.so)"
@@ -382,7 +382,7 @@ else
 				#UOPZ_PATH="$(find $(pwd) -name uopz.so)"
 				#echo "zend_extension=\"$UOPZ_PATH\"" >> "./bin/php7/bin/php.ini"
 				#echo "zend_extension=\"$OPCACHE_PATH\"" >> "./bin/php7/bin/php.ini"
-				if [ "$XDEBUG" == "on" ]; then
+				if [ "$XDEBUG" = "on" ]; then
 					echo "zend_extension=\"$XDEBUG_PATH\"" >> "./bin/php7/bin/php.ini"
 				fi
 				echo "opcache.enable=1" >> "./bin/php7/bin/php.ini"
@@ -405,10 +405,10 @@ else
 			else
 				echo " invalid build detected"
 			fi
-		elif [ "$forcecompile" == "off" ] && [ "$(uname -s)" == "Linux" ]; then
+		elif [ "$forcecompile" = "off" ] && [ "$(uname -s)" = "Linux" ]; then
 			rm -r -f bin/ >> /dev/null 2>&1
 
-			#if [[ "$(cat /etc/redhat-release 2>/dev/null)" == *CentOS* ]]; then
+			#if [ "$(cat /etc/redhat-release 2>/dev/null)" = *CentOS* ]; then
 				#if [ `getconf LONG_BIT` = "64" ]; then
 				#	echo -n "[3/3] CentOS 64-bit PHP build available, downloading $CENTOS_64_BUILD.tar.gz..."
 				#	LINUX_BUILD="$CENTOS_64_BUILD"
@@ -429,7 +429,7 @@ else
 			download_file "https://dl.bintray.com/pocketmine/PocketMine/$LINUX_BUILD.tar.gz" | tar -zx > /dev/null 2>&1
 			chmod +x ./bin/php7/bin/*
 			echo -n " checking..."
-			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" == "1" ]; then
+			if [ "$(./bin/php7/bin/php -r 'echo 1;' 2>/dev/null)" = "1" ]; then
 				echo -n " regenerating php.ini..."
 				#OPCACHE_PATH="$(find $(pwd) -name opcache.so)"
 				XDEBUG_PATH="$(find $(pwd) -name xdebug.so)"
@@ -437,7 +437,7 @@ else
 				#UOPZ_PATH="$(find $(pwd) -name uopz.so)"
 				#echo "zend_extension=\"$UOPZ_PATH\"" >> "./bin/php7/bin/php.ini"
 				#echo "zend_extension=\"$OPCACHE_PATH\"" >> "./bin/php7/bin/php.ini"
-				if [ "$XDEBUG" == "on" ]; then
+				if [ "$XDEBUG" = "on" ]; then
 					echo "zend_extension=\"$XDEBUG_PATH\"" >> "./bin/php7/bin/php.ini"
 				fi
 				echo "opcache.enable=1" >> "./bin/php7/bin/php.ini"
@@ -460,7 +460,7 @@ else
 				echo " invalid build detected, please upgrade your OS"
 			fi
 		fi
-		if [ "$alldone" == "no" ]; then
+		if [ "$alldone" = "no" ]; then
 			set -e
 			echo "[3/3] no build found, compiling PHP automatically"
 			source compile.sh
