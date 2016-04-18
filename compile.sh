@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 [ -z "$PHP_VERSION" ] && PHP_VERSION="7.0.3"
 
 PHP_IS_BETA="no"
@@ -48,19 +48,27 @@ type bzip2 >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"bz
 type bison >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"bison\""; read -p "Press [Enter] to continue..."; exit 1; }
 type g++ >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"g++\""; read -p "Press [Enter] to continue..."; exit 1; }
 
-#Needed to use aliases
-shopt -s expand_aliases
-type wget >> "$DIR/install.log" 2>&1
-if [ $? -eq 0 ]; then
-	alias download_file="wget --no-check-certificate -q -O -"
-else
-	type curl >> "$DIR/install.log" 2>&1
+download_file() {
+	type wget > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		alias download_file="curl --insecure --silent --location"
+		if [ "$IGNORE_CERT" == "yes" ]; then
+			wget --no-check-certificate -q -O- $@
+		else
+			wget -q -O- $@
+		fi
 	else
-		echo "error, curl or wget not found"
+		type curl >> /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			if [ "$IGNORE_CERT" == "yes" ]; then
+				curl --insecure --silent --location $@
+			else
+				curl --silent --location $@
+			fi
+		else
+			echo "error, curl or wget not found"
+		fi
 	fi
-fi
+}
 
 #if type llvm-gcc >/dev/null 2>&1; then
 #	export CC="llvm-gcc"
@@ -91,9 +99,12 @@ FLAGS_LTO=""
 
 LD_PRELOAD=""
 
-while getopts "::t:oj:srcdlxzff:" OPTION; do
+while getopts "::t:oj:isrcdlxzff:" OPTION; do
 
 	case $OPTION in
+		i)	echo "[opt] Ignore Certificates"
+			IGNORE_CERT=yes
+			;;
 		t)
 			echo "[opt] Set target to $OPTARG"
 			COMPILE_TARGET="$OPTARG"

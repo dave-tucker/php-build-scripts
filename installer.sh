@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 CHANNEL="stable"
 BRANCH="master"
@@ -63,28 +63,27 @@ while getopts "rxucid:v:t:" opt; do
   esac
 done
 
-
-#Needed to use aliases
-shopt -s expand_aliases
-type wget > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-	if [ "$IGNORE_CERT" == "yes" ]; then
-		alias download_file="wget --no-check-certificate -q -O -"
-	else
-		alias download_file="wget -q -O -"
-	fi
-else
-	type curl >> /dev/null 2>&1
+download_file() {
+	type wget > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		if [ "$IGNORE_CERT" == "yes" ]; then
-			alias download_file="curl --insecure --silent --location"
+			wget --no-check-certificate -q -O- $@
 		else
-			alias download_file="curl --silent --location"
+			wget -q -O- $@
 		fi
 	else
-		echo "error, curl or wget not found"
+		type curl >> /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			if [ "$IGNORE_CERT" == "yes" ]; then
+				curl --insecure --silent --location $@
+			else
+				curl --silent --location $@
+			fi
+		else
+			echo "error, curl or wget not found"
+		fi
 	fi
-fi
+}
 
 if [ "$checkRoot" == "on" ]; then
 	if [ "$(id -u)" == "0" ]; then
