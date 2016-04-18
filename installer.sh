@@ -230,7 +230,7 @@ else
 	download_file "https://raw.githubusercontent.com/PocketMine/PocketMine-MP/${BRANCH}/LICENSE" > LICENSE
 	download_file "https://raw.githubusercontent.com/PocketMine/PocketMine-MP/${BRANCH}/README.md" > README.md
 	download_file "https://raw.githubusercontent.com/PocketMine/PocketMine-MP/${BRANCH}/CONTRIBUTING.md" > CONTRIBUTING.md
-	download_file "https://raw.githubusercontent.com/PocketMine/php-build-scripts/${BRANCH}/compile.sh" > compile.sh
+	download_file "https://raw.githubusercontent.com/dave-tucker/php-build-scripts/alpine/compile.sh" > compile.sh
 fi
 
 chmod +x compile.sh

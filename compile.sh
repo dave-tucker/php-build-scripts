@@ -51,7 +51,7 @@ type g++ >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"g++\
 download_file() {
 	type wget > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		if [ "$IGNORE_CERT" == "yes" ]; then
+		if [ "$IGNORE_CERT" = "yes" ]; then
 			wget --no-check-certificate -q -O- $@
 		else
 			wget -q -O- $@
@@ -59,7 +59,7 @@ download_file() {
 	else
 		type curl >> /dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			if [ "$IGNORE_CERT" == "yes" ]; then
+			if [ "$IGNORE_CERT" = "yes" ]; then
 				curl --insecure --silent --location $@
 			else
 				curl --silent --location $@
@@ -152,11 +152,11 @@ while getopts "::t:oj:isrcdlxzff:" OPTION; do
 				CFLAGS="$CFLAGS -funsafe-loop-optimizations -fpredictive-commoning -ftracer -ftree-loop-im -frename-registers -fcx-limited-range"
 			fi
 
-			if [ "$OPTARG" == "arm" ]; then
+			if [ "$OPTARG" = "arm" ]; then
 				CFLAGS="$CFLAGS -mfpu=vfp"
-			elif [ "$OPTARG" == "x86_64" ]; then
+			elif [ "$OPTARG" = "x86_64" ]; then
 				CFLAGS="$CFLAGS -mmmx -msse -msse2 -msse3 -mfpmath=sse -free -msahf -ftree-parallelize-loops=4"
-			elif [ "$OPTARG" == "x86" ]; then
+			elif [ "$OPTARG" = "x86" ]; then
 				CFLAGS="$CFLAGS -mmmx -msse -msse2 -mfpmath=sse -m128bit-long-double -malign-double -ftree-parallelize-loops=4"
 			fi
 			;;
@@ -176,9 +176,9 @@ COMPILE_LEVELDB="no"
 GMP_ABI=""
 TOOLCHAIN_PREFIX=""
 
-if [ "$IS_CROSSCOMPILE" == "yes" ]; then
+if [ "$IS_CROSSCOMPILE" = "yes" ]; then
 	export CROSS_COMPILER="$PATH"
-	if [[ "$COMPILE_TARGET" == "win" ]] || [[ "$COMPILE_TARGET" == "win32" ]]; then
+	if [ "$COMPILE_TARGET" = "win" ] || [ "$COMPILE_TARGET" = "win32" ]; then
 		TOOLCHAIN_PREFIX="i686-w64-mingw32"
 		[ -z "$march" ] && march=i686;
 		[ -z "$mtune" ] && mtune=pentium4;
@@ -187,7 +187,7 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		IS_WINDOWS="yes"
 		GMP_ABI="32"
 		echo "[INFO] Cross-compiling for Windows 32-bit"
-	elif [ "$COMPILE_TARGET" == "win64" ]; then
+	elif [ "$COMPILE_TARGET" = "win64" ]; then
 		TOOLCHAIN_PREFIX="x86_64-w64-mingw32"
 		[ -z "$march" ] && march=x86_64;
 		[ -z "$mtune" ] && mtune=nocona;
@@ -196,7 +196,7 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		IS_WINDOWS="yes"
 		GMP_ABI="64"
 		echo "[INFO] Cross-compiling for Windows 64-bit"
-	elif [ "$COMPILE_TARGET" == "android" ] || [ "$COMPILE_TARGET" == "android-armv6" ]; then
+	elif [ "$COMPILE_TARGET" = "android" ] || [ "$COMPILE_TARGET" = "android-armv6" ]; then
 		COMPILE_FOR_ANDROID=yes
 		[ -z "$march" ] && march=armv6;
 		[ -z "$mtune" ] && mtune=arm1136jf-s;
@@ -206,7 +206,7 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		CXXFLAGS="-static $CXXFLAGS"
 		LDFLAGS="-static"
 		echo "[INFO] Cross-compiling for Android ARMv6"
-	elif [ "$COMPILE_TARGET" == "android-armv7" ]; then
+	elif [ "$COMPILE_TARGET" = "android-armv7" ]; then
 		COMPILE_FOR_ANDROID=yes
 		[ -z "$march" ] && march=armv7-a;
 		[ -z "$mtune" ] && mtune=cortex-a8;
@@ -216,24 +216,24 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		CXXFLAGS="-static $CXXFLAGS"
 		LDFLAGS="-static"
 		echo "[INFO] Cross-compiling for Android ARMv7"
-	elif [ "$COMPILE_TARGET" == "rpi" ]; then
+	elif [ "$COMPILE_TARGET" = "rpi" ]; then
 		TOOLCHAIN_PREFIX="arm-linux-gnueabihf"
 		[ -z "$march" ] && march=armv6zk;
 		[ -z "$mtune" ] && mtune=arm1176jzf-s;
-		if [ "$DO_OPTIMIZE" == "yes" ]; then
+		if [ "$DO_OPTIMIZE" = "yes" ]; then
 			CFLAGS="$CFLAGS -mfloat-abi=hard -mfpu=vfp"
 		fi
 		CONFIGURE_FLAGS="--host=$TOOLCHAIN_PREFIX"
 		[ -z "$CFLAGS" ] && CFLAGS="-uclibc";
 		echo "[INFO] Cross-compiling for Raspberry Pi ARMv6zk hard float"
-	elif [ "$COMPILE_TARGET" == "armv7" ]; then
+	elif [ "$COMPILE_TARGET" = "armv7" ]; then
 		TOOLCHAIN_PREFIX="arm-linux-gnueabihf"
 		[ -z "$march" ] && march=armv7-a;
 		[ -z "$mtune" ] && mtune=cortex-a8;
 		CONFIGURE_FLAGS="--host=$TOOLCHAIN_PREFIX"
 		[ -z "$CFLAGS" ] && CFLAGS="-uclibc";
 		echo "[INFO] Cross-compiling for ARMv7"
-	elif [ "$COMPILE_TARGET" == "mac" ]; then
+	elif [ "$COMPILE_TARGET" = "mac" ]; then
 		[ -z "$march" ] && march=prescott;
 		[ -z "$mtune" ] && mtune=generic;
 		CFLAGS="$CFLAGS -fomit-frame-pointer";
@@ -246,50 +246,50 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 		ARCHFLAGS="-Wno-error=unused-command-line-argument-hard-error-in-future"
 		GMP_ABI="32"
 		echo "[INFO] Cross-compiling for Intel MacOS"
-	elif [ "$COMPILE_TARGET" == "ios" ] || [ "$COMPILE_TARGET" == "ios-armv6" ]; then
+	elif [ "$COMPILE_TARGET" = "ios" ] || [ "$COMPILE_TARGET" = "ios-armv6" ]; then
 		[ -z "$march" ] && march=armv6;
 		[ -z "$mtune" ] && mtune=arm1176jzf-s;
 		TOOLCHAIN_PREFIX="arm-apple-darwin10"
 		CONFIGURE_FLAGS="--host=$TOOLCHAIN_PREFIX --target=$TOOLCHAIN_PREFIX -miphoneos-version-min=4.2"
-	elif [ "$COMPILE_TARGET" == "ios-armv7" ]; then
+	elif [ "$COMPILE_TARGET" = "ios-armv7" ]; then
 		[ -z "$march" ] && march=armv7-a;
 		[ -z "$mtune" ] && mtune=cortex-a8;
 		TOOLCHAIN_PREFIX="arm-apple-darwin10"
 		CONFIGURE_FLAGS="--host=$TOOLCHAIN_PREFIX --target=$TOOLCHAIN_PREFIX -miphoneos-version-min=4.2"
-		if [ "$DO_OPTIMIZE" == "yes" ]; then
+		if [ "$DO_OPTIMIZE" = "yes" ]; then
 			CFLAGS="$CFLAGS -mfpu=neon"
 		fi
 	else
 		echo "Please supply a proper platform [android android-armv6 android-armv7 rpi mac ios ios-armv6 ios-armv7 win win32 win64] to cross-compile"
 		exit 1
 	fi
-elif [[ "$COMPILE_TARGET" == "linux" ]] || [[ "$COMPILE_TARGET" == "linux32" ]]; then
+elif [ "$COMPILE_TARGET" = "linux" ] || [ "$COMPILE_TARGET" = "linux32" ]; then
 	[ -z "$march" ] && march=i686;
 	[ -z "$mtune" ] && mtune=pentium4;
 	CFLAGS="$CFLAGS -m32";
 	GMP_ABI="32"
 	echo "[INFO] Compiling for Linux x86"
-elif [ "$COMPILE_TARGET" == "linux64" ]; then
+elif [ "$COMPILE_TARGET" = "linux64" ]; then
 	[ -z "$march" ] && march=x86-64;
 	[ -z "$mtune" ] && mtune=nocona;
 	CFLAGS="$CFLAGS -m64"
 	GMP_ABI="64"
 	echo "[INFO] Compiling for Linux x86_64"
-elif [ "$COMPILE_TARGET" == "rpi" ]; then
+elif [ "$COMPILE_TARGET" = "rpi" ]; then
 	[ -z "$march" ] && march=armv6zk;
 	[ -z "$mtune" ] && mtune=arm1176jzf-s;
 	CFLAGS="$CFLAGS -mfloat-abi=hard -mfpu=vfp";
 	echo "[INFO] Compiling for Raspberry Pi ARMv6zk hard float"
-elif [ "$COMPILE_TARGET" == "armv7" ]; then
+elif [ "$COMPILE_TARGET" = "armv7" ]; then
 	[ -z "$march" ] && march=armv7-a;
 	[ -z "$mtune" ] && mtune=cortex-a8;
 	CFLAGS="$CFLAGS -mfpu=vfp";
 	echo "[INFO] Compiling for ARMv7"
-elif [[ "$COMPILE_TARGET" == "mac" ]] || [[ "$COMPILE_TARGET" == "mac32" ]]; then
+elif [ "$COMPILE_TARGET" = "mac" ] || [ "$COMPILE_TARGET" = "mac32" ]; then
 	[ -z "$march" ] && march=prescott;
 	[ -z "$mtune" ] && mtune=generic;
 	CFLAGS="$CFLAGS -m32 -arch i386 -fomit-frame-pointer -mmacosx-version-min=10.7";
-	if [ "$DO_STATIC" == "no" ]; then
+	if [ "$DO_STATIC" = "no" ]; then
 		LDFLAGS="$LDFLAGS -Wl,-rpath,@loader_path/../lib";
 		export DYLD_LIBRARY_PATH="@loader_path/../lib"
 	fi
@@ -298,11 +298,11 @@ elif [[ "$COMPILE_TARGET" == "mac" ]] || [[ "$COMPILE_TARGET" == "mac32" ]]; the
 	ARCHFLAGS="-Wno-error=unused-command-line-argument-hard-error-in-future"
 	GMP_ABI="32"
 	echo "[INFO] Compiling for Intel MacOS x86"
-elif [ "$COMPILE_TARGET" == "mac64" ]; then
+elif [ "$COMPILE_TARGET" = "mac64" ]; then
 	[ -z "$march" ] && march=core2;
 	[ -z "$mtune" ] && mtune=generic;
 	CFLAGS="$CFLAGS -m64 -arch x86_64 -fomit-frame-pointer -mmacosx-version-min=10.7";
-	if [ "$DO_STATIC" == "no" ]; then
+	if [ "$DO_STATIC" = "no" ]; then
 		LDFLAGS="$LDFLAGS -Wl,-rpath,@loader_path/../lib";
 		export DYLD_LIBRARY_PATH="@loader_path/../lib"
 	fi
@@ -312,12 +312,12 @@ elif [ "$COMPILE_TARGET" == "mac64" ]; then
 	GMP_ABI="64"
 	CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 	echo "[INFO] Compiling for Intel MacOS x86_64"
-elif [ "$COMPILE_TARGET" == "ios" ]; then
+elif [ "$COMPILE_TARGET" = "ios" ]; then
 	[ -z "$march" ] && march=armv7-a;
 	[ -z "$mtune" ] && mtune=cortex-a8;
 	echo "[INFO] Compiling for iOS ARMv7"
 elif [ -z "$CFLAGS" ]; then
-	if [ `getconf LONG_BIT` == "64" ]; then
+	if [ `getconf LONG_BIT` = "64" ]; then
 		echo "[INFO] Compiling for current machine using 64-bit"
 		CFLAGS="-m64 $CFLAGS"
 		GMP_ABI="64"
@@ -351,7 +351,7 @@ type $CC >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"$CC\
 [ -z "$mtune" ] && mtune=native;
 [ -z "$CFLAGS" ] && CFLAGS="";
 
-if [ "$DO_STATIC" == "no" ]; then
+if [ "$DO_STATIC" = "no" ]; then
 	[ -z "$LDFLAGS" ] && LDFLAGS="-Wl,-rpath='\$\$ORIGIN/../lib' -Wl,-rpath-link='\$\$ORIGIN/../lib'";
 fi
 
@@ -391,7 +391,7 @@ set -e
 #PHP 5
 echo -n "[PHP] downloading $PHP_VERSION..."
 
-if [[ "$PHP_IS_BETA" == "yes" ]]; then
+if [ "$PHP_IS_BETA" = "yes" ]; then
 	download_file "https://downloads.php.net/~ab/php-$PHP_VERSION.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
 	mv php-$PHP_VERSION php
 else
@@ -401,8 +401,8 @@ fi
 
 echo " done!"
 
-if [ "$COMPILE_FANCY" == "yes" ]; then
-	if [ "$DO_STATIC" == "yes" ]; then
+if [ "$COMPILE_FANCY" = "yes" ]; then
+	if [ "$DO_STATIC" = "yes" ]; then
 		EXTRA_FLAGS="--without-shared --with-static"
 	else
 		EXTRA_FLAGS="--with-shared --without-static"
@@ -433,7 +433,7 @@ if [ "$COMPILE_FANCY" == "yes" ]; then
 	echo " done!"
 	HAVE_NCURSES="--with-ncurses=$DIR/bin/php7"
 
-	if [ "$DO_STATIC" == "yes" ]; then
+	if [ "$DO_STATIC" = "yes" ]; then
 		EXTRA_FLAGS="--enable-shared=no --enable-static=yes"
 	else
 		EXTRA_FLAGS="--enable-shared=yes --enable-static=no"
@@ -470,7 +470,7 @@ else
 fi
 
 
-if [ "$DO_STATIC" == "yes" ]; then
+if [ "$DO_STATIC" = "yes" ]; then
 	EXTRA_FLAGS="--static"
 else
 	EXTRA_FLAGS="--shared"
@@ -527,7 +527,7 @@ cd ..
 rm -r -f ./libmcrypt
 echo " done!"
 
-if [ "$IS_CROSSCOMPILE" == "yes" ]; then
+if [ "$IS_CROSSCOMPILE" = "yes" ]; then
 	EXTRA_FLAGS=""
 else
 	EXTRA_FLAGS="--disable-assembly"
@@ -554,8 +554,8 @@ cd ..
 rm -r -f ./gmp
 echo " done!"
 
-if [ "$(uname -s)" != "Darwin" ] || [ "$IS_CROSSCOMPILE" == "yes" ] || [ "$COMPILE_CURL" == "yes" ]; then
-	#if [ "$DO_STATIC" == "yes" ]; then
+if [ "$(uname -s)" != "Darwin" ] || [ "$IS_CROSSCOMPILE" = "yes" ] || [ "$COMPILE_CURL" = "yes" ]; then
+	#if [ "$DO_STATIC" = "yes" ]; then
 	#	EXTRA_FLAGS=""
 	#else
 	#	EXTRA_FLAGS="shared no-static"
@@ -578,10 +578,10 @@ if [ "$(uname -s)" != "Darwin" ] || [ "$IS_CROSSCOMPILE" == "yes" ] || [ "$COMPI
 	echo " done!"
 fi
 
-if [ "$(uname -s)" == "Darwin" ] && [ "$IS_CROSSCOMPILE" != "yes" ] && [ "$COMPILE_CURL" != "yes" ]; then
+if [ "$(uname -s)" = "Darwin" ] && [ "$IS_CROSSCOMPILE" != "yes" ] && [ "$COMPILE_CURL" != "yes" ]; then
    HAVE_CURL="shared,/usr"
 else
-	if [ "$DO_STATIC" == "yes" ]; then
+	if [ "$DO_STATIC" = "yes" ]; then
 		EXTRA_FLAGS="--enable-static --disable-shared"
 	else
 		EXTRA_FLAGS="--disable-static --enable-shared"
@@ -643,14 +643,14 @@ fi
 #echo " done!"
 
 
-if [ "$DO_STATIC" == "yes" ]; then
+if [ "$DO_STATIC" = "yes" ]; then
 	EXTRA_FLAGS="--disable-shared --enable-static"
 else
 	EXTRA_FLAGS="--enable-shared --disable-static"
 fi
 #YAML
 echo -n "[YAML] downloading $YAML_VERSION..."
-if [ "$COMPILE_FOR_ANDROID" == "yes" ]; then
+if [ "$COMPILE_FOR_ANDROID" = "yes" ]; then
 	download_file "https://github.com/yaml/libyaml/archive/$YAML_VERSION_ANDROID.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
 	mv libyaml-$YAML_VERSION yaml
 	cd yaml
@@ -677,7 +677,7 @@ cd ..
 rm -r -f ./yaml
 echo " done!"
 
-if [ "$COMPILE_LEVELDB" == "yes" ]; then
+if [ "$COMPILE_LEVELDB" = "yes" ]; then
 	#LevelDB
 	echo -n "[LevelDB] downloading $LEVELDB_VERSION..."
 	download_file "https://github.com/PocketMine/leveldb/archive/$LEVELDB_VERSION.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
@@ -686,7 +686,7 @@ if [ "$COMPILE_LEVELDB" == "yes" ]; then
 	echo -n " checking..."
 	cd leveldb
 	echo -n " compiling..."
-	if [ "$DO_STATIC" == "yes" ]; then
+	if [ "$DO_STATIC" = "yes" ]; then
 		CFLAGS="$CFLAGS -I$DIR/bin/php7/include" CXXFLAGS="$CXXFLAGS -I$DIR/bin/php7/include" LDFLAGS="$LDFLAGS -L$DIR/bin/php7/lib" make -j $THREADS libleveldb.a >> "$DIR/install.log" 2>&1
 	else
 		CFLAGS="$CFLAGS -I$DIR/bin/php7/include" CXXFLAGS="$CXXFLAGS -I$DIR/bin/php7/include" LDFLAGS="$LDFLAGS -L$DIR/bin/php7/lib" make -j $THREADS >> "$DIR/install.log" 2>&1
@@ -700,7 +700,7 @@ if [ "$COMPILE_LEVELDB" == "yes" ]; then
 	echo " done!"
 fi
 
-if [ "$DO_STATIC" == "yes" ]; then
+if [ "$DO_STATIC" = "yes" ]; then
 	EXTRA_FLAGS="--enable-shared=no --enable-static=yes"
 else
 	EXTRA_FLAGS="--enable-shared=yes --enable-static=no"
@@ -754,7 +754,7 @@ echo " done!"
 # PECL libraries
 
 #TODO Uncomment this when it's ready for PHP7
-#if [[ "$DO_STATIC" != "yes" ]] && [[ "$COMPILE_DEBUG" == "yes" ]]; then
+#if [ "$DO_STATIC" != "yes" ] && [ "$COMPILE_DEBUG" = "yes" ]; then
 #	#xdebug
 #	echo -n "[PHP xdebug] downloading $XDEBUG_VERSION..."
 #	download_file "http://pecl.php.net/get/xdebug-$XDEBUG_VERSION.tgz" | tar -zx >> "$DIR/install.log" 2>&1
@@ -765,7 +765,7 @@ echo " done!"
 #	HAS_XDEBUG=""
 #fi
 
-#if [ "$COMPILE_DEBUG" == "yes" ]; then
+#if [ "$COMPILE_DEBUG" = "yes" ]; then
 #	#profiler
 #	echo -n "[PHP profiler] downloading latest..."
 #	download_file "https://github.com/krakjoe/profiler/archive/master.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
@@ -784,7 +784,7 @@ mv pthreads-$PTHREADS_VERSION "$DIR/install_data/php/ext/pthreads"
 echo " done!"
 
 HAS_POCKETMINE=""
-if [ "$HAS_ZEPHIR" == "yes" ]; then
+if [ "$HAS_ZEPHIR" = "yes" ]; then
 	echo -n "[C PocketMine extension] downloading $PHP_POCKETMINE_VERSION..."
 	download_file https://github.com/PocketMine/PocketMine-MP-Zephir/archive/$PHP_POCKETMINE_VERSION.tar.gz | tar -zx >> "$DIR/install.log" 2>&1
 	mv PocketMine-MP-Zephir-$PHP_POCKETMINE_VERSION/pocketmine/ext "$DIR/install_data/php/ext/pocketmine"
@@ -814,7 +814,7 @@ download_file "https://github.com/php/pecl-file_formats-yaml/archive/$PHPYAML_VE
 mv pecl-file_formats-yaml-$PHPYAML_VERSION "$DIR/install_data/php/ext/yaml"
 echo " done!"
 
-if [ "$COMPILE_LEVELDB" == "yes" ]; then
+if [ "$COMPILE_LEVELDB" = "yes" ]; then
 	#PHP LevelDB
 	echo -n "[PHP LevelDB] downloading $PHPLEVELDB_VERSION..."
 	#download_file "http://pecl.php.net/get/leveldb-$PHPLEVELDB_VERSION.tgz" | tar -zx >> "$DIR/install.log" 2>&1
@@ -841,10 +841,10 @@ rm -f ./aclocal.m4 >> "$DIR/install.log" 2>&1
 rm -rf ./autom4te.cache/ >> "$DIR/install.log" 2>&1
 rm -f ./configure >> "$DIR/install.log" 2>&1
 ./buildconf --force >> "$DIR/install.log" 2>&1
-if [ "$IS_CROSSCOMPILE" == "yes" ]; then
+if [ "$IS_CROSSCOMPILE" = "yes" ]; then
 	sed -i=".backup" 's/pthreads_working=no/pthreads_working=yes/' ./configure
 	if [ "$IS_WINDOWS" != "yes" ]; then
-		if [ "$COMPILE_FOR_ANDROID" == "no" ]; then
+		if [ "$COMPILE_FOR_ANDROID" = "no" ]; then
 			export LIBS="$LIBS -lpthread -ldl -lresolv"
 		else
 			export LIBS="$LIBS -lpthread -lresolv"
@@ -856,7 +856,7 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 	mv ext/mysqlnd/config9.m4 ext/mysqlnd/config.m4
 	sed  -i=".backup" "s{ext/mysqlnd/php_mysqlnd_config.h{config.h{" ext/mysqlnd/mysqlnd_portability.h
 	CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-opcache=no"
-elif [ "$DO_STATIC" == "yes" ]; then
+elif [ "$DO_STATIC" = "yes" ]; then
 	export LIBS="$LIBS -ldl"
 fi
 
@@ -868,12 +868,12 @@ else
 	sed 's:@PREFIX@:$DIR/bin/php7:' ./main/config.w32.h.in > ./wmain/config.w32.h 2>> "$DIR/install.log"
 fi
 
-if [[ "$(uname -s)" == "Darwin" ]] && [[ "$IS_CROSSCOMPILE" != "yes" ]]; then
+if [ "$(uname -s)" = "Darwin" ] && [ "$IS_CROSSCOMPILE" != "yes" ]; then
 	sed -i=".backup" 's/flock_type=unknown/flock_type=bsd/' ./configure
 	export EXTRA_CFLAGS=-lresolv
 fi
 
-if [[ "$COMPILE_DEBUG" == "yes" ]]; then
+if [ "$COMPILE_DEBUG" = "yes" ]; then
 	HAS_DEBUG="--enable-debug"
 else
 	HAS_DEBUG="--disable-debug"
@@ -932,13 +932,13 @@ $HAVE_MYSQLI \
 --enable-weakref \
 $CONFIGURE_FLAGS >> "$DIR/install.log" 2>&1
 echo -n " compiling..."
-if [ "$COMPILE_FOR_ANDROID" == "yes" ]; then
+if [ "$COMPILE_FOR_ANDROID" = "yes" ]; then
 	sed -i=".backup" 's/-export-dynamic/-all-static/g' Makefile
 fi
 sed -i=".backup" 's/PHP_BINARIES. pharcmd$/PHP_BINARIES)/g' Makefile
 sed -i=".backup" 's/install-programs install-pharcmd$/install-programs/g' Makefile
 
-if [[ "$COMPILE_LEVELDB" == "yes" ]] && [[ "$DO_STATIC" == "yes" ]]; then
+if [ "$COMPILE_LEVELDB" = "yes" ] && [ "$DO_STATIC" = "yes" ]; then
 	sed -i=".backup" 's/--mode=link $(CC)/--mode=link $(CXX)/g' Makefile
 fi
 
@@ -946,7 +946,7 @@ make -j $THREADS >> "$DIR/install.log" 2>&1
 echo -n " installing..."
 make install >> "$DIR/install.log" 2>&1
 
-if [[ "$(uname -s)" == "Darwin" ]] && [[ "$IS_CROSSCOMPILE" != "yes" ]]; then
+if [ "$(uname -s)" = "Darwin" ] && [ "$IS_CROSSCOMPILE" != "yes" ]; then
 	set +e
 	install_name_tool -delete_rpath "$DIR/bin/php7/lib" "$DIR/bin/php7/bin/php" >> "$DIR/install.log" 2>&1
 	install_name_tool -change "$DIR/bin/php7/lib/libz.1.dylib" "@loader_path/../lib/libz.1.dylib" "$DIR/bin/php7/bin/php" >> "$DIR/install.log" 2>&1
@@ -980,13 +980,13 @@ echo "asp_tags=0" >> "$DIR/bin/php7/bin/php.ini"
 echo "phar.readonly=0" >> "$DIR/bin/php7/bin/php.ini"
 echo "phar.require_hash=1" >> "$DIR/bin/php7/bin/php.ini"
 #echo "zend_extension=uopz.so" >> "$DIR/bin/php7/bin/php.ini"
-if [[ "$COMPILE_DEBUG" == "yes" ]]; then
+if [ "$COMPILE_DEBUG" = "yes" ]; then
 	echo "zend.assertions=1" >> "$DIR/bin/php7/bin/php.ini"
 else
 	echo "zend.assertions=-1" >> "$DIR/bin/php7/bin/php.ini"
 fi
 
-if [ "$IS_CROSSCOMPILE" != "yes" ] && [ "$DO_STATIC" == "no" ]; then
+if [ "$IS_CROSSCOMPILE" != "yes" ] && [ "$DO_STATIC" = "no" ]; then
 	echo ";zend_extension=xdebug.so" >> "$DIR/bin/php7/bin/php.ini"
 	echo "zend_extension=opcache.so" >> "$DIR/bin/php7/bin/php.ini"
 	echo "opcache.enable=1" >> "$DIR/bin/php7/bin/php.ini"
@@ -999,7 +999,7 @@ if [ "$IS_CROSSCOMPILE" != "yes" ] && [ "$DO_STATIC" == "no" ]; then
 	echo "opcache.optimization_level=0xffffffff" >> "$DIR/bin/php7/bin/php.ini"
 fi
 
-if [ "$HAVE_CURL" == "shared,/usr" ]; then
+if [ "$HAVE_CURL" = "shared,/usr" ]; then
 	echo "extension=curl.so" >> "$DIR/bin/php7/bin/php.ini"
 fi
 
