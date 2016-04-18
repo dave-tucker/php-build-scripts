@@ -24,7 +24,7 @@ alternateurl=off
 
 INSTALL_DIRECTORY="./"
 
-IGNORE_CERT="yes"
+IGNORE_CERT="no"
 
 while getopts "rxucid:v:t:" opt; do
   case $opt in
@@ -48,7 +48,7 @@ while getopts "rxucid:v:t:" opt; do
 	  INSTALL_DIRECTORY="$OPTARG"
       ;;
 	i)
-	  IGNORE_CERT="no"
+	  IGNORE_CERT="yes"
       ;;
 	v)
 	  CHANNEL="$OPTARG"
